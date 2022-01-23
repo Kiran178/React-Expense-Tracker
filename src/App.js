@@ -1,24 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { useState } from "react";
+import { Button, Container, Stack } from "react-bootstrap";
+import BudgetCard from "./components/BudgetCard";
+import AddBudgetModel from "./components/AddBudgetModel";
+import { useBudgets } from "./context/BudgetContext";
 function App() {
+  const [showAddBudgetModel, setShowAddBudgetModel] = useState(false);
+
+  const handleClose = () => setShowAddBudgetModel(false);
+  const handleShow = () => setShowAddBudgetModel(true);
+
+  const { budgets, getBudgetExpenses } = useBudgets();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <Container className="my-4">
+        <Stack direction="horizontal" gap="2" className="mb-4">
+          <h1 className="me-auto">Expense Tracker</h1>
+          <Button variant="primary" onClick={handleShow}>
+            Add Budget
+          </Button>
+          <Button variant="outline-primary">Add Expense</Button>
+        </Stack>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "1rem",
+            alignIteams: "flex-start",
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          {budgets.map((budget) => {
+            const amount = getBudgetExpenses(budget.id).reduce(
+              (total, expense) => total + expense.amount,
+              0
+            );
+            return (
+              <BudgetCard
+                key={budget.id}
+                name={budget.name}
+                amount={amount}
+                max={budget.max}
+              />
+            );
+          })}
+        </div>
+      </Container>
+      <AddBudgetModel show={showAddBudgetModel} onHide={handleClose} />
+    </>
   );
 }
 
